@@ -1,0 +1,10 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" access="global" >
+	<lightning:tabset variant="scoped">
+        <lightning:tab label="Folders Tree">
+            <c:DriveFoldersList />
+        </lightning:tab>
+        <lightning:tab label="Settings">
+            <c:Settings />
+        </lightning:tab>
+    </lightning:tabset>
+</aura:component>

@@ -1,0 +1,67 @@
+<aura:component implements="flexipage:availableForAllPageTypes,forceCommunity:availableForAllPageTypes" controller="AuthController" access="global">
+    <aura:attribute name="access" type="Boolean" default="false"/>
+    <aura:attribute name="authorized" type="Boolean" default="false"/>
+    <aura:attribute name="spinner" type="String" default="slds-spinner_container slds-hide"/>
+    <aura:attribute name="removeContainer" type="Boolean" default="false"/>
+    <aura:attribute name="logoutContainer" type="Boolean" default="false"/>
+    <aura:attribute name="externalDriveName" type="String"/>
+    <aura:handler name="init" value="{!this }" action="{!c.init}"/>
+
+    <aura:renderIf isTrue="{!v.access}">
+        <aura:renderIf isTrue="{!v.authorized}">
+            <ui:button aura:id="logOutButton" buttonTitle="Log Out from Google Drive" class="button" label="Log Out" press="{!c.showConfirmation2}"/>
+            <ui:button aura:id="clearButton" buttonTitle="Clear" class="button" label="Archive Deleted Records" press="{!c.clear}"/>
+            <ui:button aura:id="removeButton" buttonTitle="Remove" class="button" label="Clear Archived Folder" press="{!c.showConfirmation1}"/>
+            <aura:set attribute="else">
+                <!--ui:button aura:id="authButton" buttonTitle="Authorize to Google Drive" class="button" label="Authorize" press="{!c.authorize}"/-->
+                <lightning:buttonMenu label="Authorize" onselect="{!c.authorize}">
+                    <lightning:menuItem label="Google Drive" value="gdrive"/>
+                    <lightning:menuItem label="OneDrive" value="onedrive"/>
+                </lightning:buttonMenu>
+            </aura:set>
+        </aura:renderIf>
+    </aura:renderIf>
+    
+    <aura:renderIf isTrue="{!v.removeContainer}">
+        <div>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Do you really want to clear the Archived folder?</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <p>Warning: This action cannot be undone.</p>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <ui:button buttonTitle="Cancel" class="slds-button slds-button_neutral" label="Cancel" press="{!c.hideConfirmation1}"/>
+                        <ui:button buttonTitle="Clear" class="slds-button slds-button_brand" label="Clear Archived" press="{!c.remove}"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:renderIf>
+    
+    
+    <aura:renderIf isTrue="{!v.logoutContainer}">
+        <div>
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 id="modal-heading-02" class="slds-text-heading_medium slds-hyphenate">Confirm: Log out from External Drive?</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <p>Warning: You will not be able to save files from Salesforce to your External Drive after you log out.</p>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <ui:button buttonTitle="Cancel" class="slds-button slds-button_neutral" label="Cancel" press="{!c.hideConfirmation2}"/>
+                        <ui:button buttonTitle="Confirm" class="slds-button slds-button_brand" label="Confirm" press="{!c.logOut}"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:renderIf>
+    
+    <lightning:spinner class="{!v.spinner}"/>
+</aura:component>

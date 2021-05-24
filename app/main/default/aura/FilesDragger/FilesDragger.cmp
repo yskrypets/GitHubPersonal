@@ -1,0 +1,170 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId" 
+                access="global" controller="FilesController">
+    <ltng:require scripts="{!$Resource.jQuery}"/>
+	<aura:attribute name="uploaded" type="Integer" default="0"/>
+    
+    <aura:attribute name="authorized" type="Boolean" default="false"/>
+    <aura:attribute name="choseFiles" type="Boolean" default="false"/>
+    <aura:attribute name="uploadContainer" type="Boolean" default="false"/>
+    <aura:attribute name="subfolderContainer" type="Boolean" default="false"/>
+    <aura:attribute name="selectedSubfolder" type="String"/>
+    <aura:attribute name="driveName" type="String"/>
+    <aura:attribute name="subfolders" type="List"/>
+    <aura:attribute name="newFiles" type="List"/>
+    <aura:attribute name="available" type="Boolean" default="false"/>
+    <aura:attribute name="filesEmpty" type="Boolean" default="false"/>
+    <aura:attribute name="dropStyle" type="String" default="z-index: -1"/>
+    <aura:attribute name="dropOpacity" type="String" default="opacity:0;"/>
+    <aura:attribute name="spinner" type="String" default="slds-spinner_container slds-hide"/>
+    <aura:attribute name="recordId" type="Id"/>
+    <aura:attribute name="recordFolderId" type="String"/>
+    <aura:attribute name="parentObjectLabel" type="String" default="test"/>
+    <aura:attribute name="parentRecordId" type="String"/>
+    <aura:attribute name="showParent" type="String" default="display:none;"/>
+    
+    <aura:attribute name="files" type="List"/>
+    <aura:handler name="init" value="{!this }" action="{!c.init}"/>
+    
+    <input type="file" id="hiddenFiles" name="hiddenFiles" style="display: none;" multiple="true"></input>
+    <aura:renderIf isTrue="{!v.uploadContainer}">
+        <div class="containerHeight">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Choose files for upload.</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <form method="post" enctype="multipart/form-data">
+                            <div>
+                                <label class="slds-button slds-button_brand formElement cursorPointer" for="uploads">Choose files</label>
+                                <input type="file" id="uploads" name="uploads" class="formElement opacityZero" multiple="true" onchange="{!c.showFiles}"></input>
+                            </div>
+                            <div class="preview padding10">
+                                <p>No files currently selected for upload</p>
+                            </div>
+                        </form>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <ui:button buttonTitle="Cancel" class="slds-button slds-button_neutral" label="Cancel" press="{!c.hideUploadWindow}"/>
+                        <aura:renderIf isTrue="{!v.choseFiles}">
+                            <ui:button buttonTitle="Start upload" class="slds-button slds-button_brand" label="Start upload" press="{!c.showSubfolders}"/>
+                        </aura:renderIf>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:renderIf>
+    
+    
+    <aura:renderIf isTrue="{!v.subfolderContainer}">
+        <div class="containerHeight">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-02" aria-modal="true" aria-describedby="modal-content-id-2" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 id="modal-heading-02" class="slds-text-heading_medium slds-hyphenate">Choose subfolder.</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-2">
+                        <lightning:select value="{!v.selectedSubfolder}">
+                            <aura:iteration items="{!v.subfolders}" var="sub">
+                                <option text="{!sub.label}" value="{!sub.value}"/>
+                            </aura:iteration>
+                        </lightning:select>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <ui:button buttonTitle="Start upload" class="slds-button slds-button_brand" label="Start upload" press="{!c.confirmUpload}"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:renderIf>
+    
+    
+    <div class="listContainer">
+        <aura:renderIf isTrue="{!v.authorized}">
+            <aura:renderIf isTrue="{!v.available}">
+                <div id="drop-area" class="slds-card dropArea" 
+                     ondragover="{!c.handleDragOver}" ondrop="{!c.handleDrop}">
+                    <div class="marginBottom">
+                        <a href="" onclick="{!c.openRecordFolder}" class="cursorPointer">Open record folder</a>
+                        <span style="{!v.showParent}">Parent object: {!v.parentObjectLabel}</span><br/><br/>
+                        <ui:button buttonTitle="Upload" class="slds-button slds-button_brand" label="Upload" press="{!c.showUpload}"/>
+                        <span id="uploadFiles" class="imageContainer" style="{!v.dropOpacity}">
+                            <span id="uploadText" class="uploadText"> or drop files here </span>
+                            <img src="{!$Resource.DragImage}" class="uploadText"/>
+                        </span>
+                    </div>
+                    <aura:renderIf isTrue="{!v.filesEmpty}">
+                        <table class="slds-table slds-table_bordered slds-table_cell-buffer fixedLayout">
+                            <thead>
+                                <tr class="slds-text-title_caps">
+                                    <th scope="col" class="columnWidth"></th>
+                                    <th scope="col" class="columnWidth">
+                                        <div class="slds-truncate" title="Type">Type</div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="File Name">File Name</div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="slds-truncate" title="File Name">Subfolder</div>
+                                    </th>
+                                    <th scope="col" class="columnWidth"></th>
+                                    <th scope="col" class="columnWidth"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <aura:iteration items="{!v.files}" var="file">
+                                    <tr>
+                                        <td role="gridcell">
+                                            <span class="slds-row-number slds-text-body_small slds-text-color_weak"
+                                                  id="{!file.id + '1'}" onclick="{!c.openFile}"></span>
+                                        </td>
+                                        <td scope="row" data-label="Type">
+                                            <div class="slds-truncate" title="{!file.Type}"
+                                                 id="{!file.id + '2'}" onclick="{!c.openFile}"><img src="{!file.iconLink}"/></div>
+                                        </td>
+                                        <td data-label="File Name">
+                                            <div class="slds-truncate cursorDefault" title="{!file.Name}"
+                                                 id="{!file.id + '3'}" onclick="{!c.openFile}">{!file.Name}</div>
+                                        </td>
+                                        <td data-label="Subfolder">
+                                            <div class="slds-truncate cursorDefault" title="{!file.Subfolder}"
+                                                 id="{!file.parentId + '6'}" onclick="{!c.openFolder}">{!file.Subfolder}</div>
+                                        </td>
+                                        <td scope="row" data-label="Download">
+                                            <div class="slds-truncate" title="Download" 
+                                                 id="{!file.id + '5'}" onclick="{!c.downloadFile}">
+                                                <lightning:buttonIcon iconName="utility:download" variant="bare" alternativeText="Download" />
+                                            </div>
+                                        </td>
+                                        <td scope="row" data-label="Remove">
+                                            <div class="slds-truncate" title="Remove" 
+                                                 id="{!file.id + '4'}" onclick="{!c.removeFile}">
+                                                <lightning:buttonIcon iconName="utility:delete" variant="bare" alternativeText="Remove" />
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </aura:iteration>
+                            </tbody>
+                        </table>
+                    </aura:renderIf>
+                    <div class="dropHelp" style="{!v.dropStyle}"
+                         ondragleave="{!c.handleDragLeave}"></div>
+                </div>
+                <lightning:spinner class="{!v.spinner}"/>
+                
+                <aura:set attribute="else">
+                    <div id="uploadFiles" class="slds-card notAvailable">
+                        <div id="uploadText" class="fontSize">Not available</div>
+                    </div>
+                </aura:set>
+            </aura:renderIf>
+            <aura:set attribute="else">
+                <div id="uploadFiles" class="slds-card notAvailable">
+                    <div id="uploadText" class="fontSize">Authorization required</div>
+                </div>
+            </aura:set>
+        </aura:renderIf>
+    </div>
+</aura:component>

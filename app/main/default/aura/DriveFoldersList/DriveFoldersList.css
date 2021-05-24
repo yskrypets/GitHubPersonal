@@ -1,0 +1,30 @@
+.THIS td {
+    width: 40px;
+}
+.THIS .posRelative {
+    position: relative;
+}
+.THIS table.mainTable {
+    box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.1); 
+    border-radius: .25rem; 
+    border: 1px solid rgb(221, 219, 218);
+}
+.THIS th.checkboxHeader {
+    width: 3rem;
+    padding: 0 .5rem;
+}
+.THIS th.otherTH {
+    padding-left: 0.5rem;
+}
+.THIS div.cursorDefault {
+    cursor: default;
+}
+.THIS span.font600 {
+    font-weight: 600;
+}
+.THIS tr.backColor {
+    background-color: #f8f8f8;
+}
+.THIS div.modalHeight {
+    height: 200px;
+}

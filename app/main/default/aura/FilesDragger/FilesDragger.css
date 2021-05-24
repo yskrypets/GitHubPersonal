@@ -1,0 +1,67 @@
+.THIS .formElement {
+  background-color: #7F9CCB;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px ridge black;
+  font-size: 0.8rem;
+  height: auto;
+}
+.THIS .containerHeight {
+  height: 200px;
+}
+.THIS .cursorPointer {
+  cursor: pointer;
+}
+.THIS .cursorDefault {
+  cursor: default;
+}
+.THIS .opacityZero {
+  opacity: 0;
+}
+.THIS .listContainer {
+  position: relative;
+}
+.THIS .dropArea {
+  min-height: 100px;
+  padding: 10px;
+}
+.THIS .padding10 {
+  padding: 10px;
+}
+.THIS .marginBottom {
+  margin-bottom: 10px;
+}
+.THIS .imageContainer {
+  pointer-events: none;
+  color: rgb(121, 121, 121);
+}
+.THIS .uploadText {
+  font-size: 22px;
+  vertical-align: middle;
+}
+.THIS .fixedLayout {
+  table-layout: fixed;
+}
+.THIS .columnWidth {
+  width: 3.75rem;
+}
+.THIS .columnWidth10 {
+  width: 10rem;
+}
+.THIS .dropHelp {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #d2d2d2;
+}
+.THIS .notAvailable {
+  pointer-events: none;
+  color: rgb(121, 121, 121);
+  text-align: center;
+  z-index: 999;
+}
+.THIS .fontSize {
+  font-size: 20px;
+}

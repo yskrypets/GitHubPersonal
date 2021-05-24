@@ -1,0 +1,12 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+	<aura:attribute name="recordId" type="Id"/>
+    
+    <lightning:tabset variant="scoped">
+        <lightning:tab label="Drive files">
+            <c:FilesDragger recordId="{!v.recordId}"/>
+        </lightning:tab>
+        <!--lightning:tab label="Tasks List">
+            testing
+        </lightning:tab-->
+    </lightning:tabset>
+</aura:component>

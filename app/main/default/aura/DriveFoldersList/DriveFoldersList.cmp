@@ -1,0 +1,221 @@
+<aura:component controller="FoldersListController" access="global" >
+    
+    <aura:attribute name="spinner" type="String" default="slds-spinner_container slds-hide"/>
+    <aura:attribute name="folders" type="List"/>
+    <aura:attribute name="selectAll" type="Boolean" default="true"/>
+    <aura:attribute name="multiParent" type="Boolean" default="false"/>
+    
+    <aura:handler name="init" value="{!this }" action="{!c.init}"/>
+    
+    <div class="posRelative">
+        <div class="slds-page-header">
+            <div class="slds-media">
+                <div class="slds-media__figure">
+                    <lightning:icon iconName="standard:folder" size="medium"/>
+                </div>
+                <div class="slds-media__body">
+                    <h1 class="slds-page-header__title slds-truncate slds-align-middle" title="Edit your folder tree in Google Drive.">Edit your folder tree in Google Drive.</h1>
+                    <p class="slds-text-body_small slds-line-height_reset">Please check which folders you want to create or delete in your Google Drive.</p>
+                </div>
+                <ui:button aura:id="updateFolders" buttonTitle="Update Folders" class="button" label="Update Folders" press="{!c.showConfirmation}"/>
+            </div>
+        </div>
+        
+        <table class="slds-table slds-table_bordered slds-table_resizable-cols mainTable" role="grid">
+            <thead class="slds-line-height_reset">
+                <tr class="slds-text-title_caps">
+                    <th class="slds-text-align_right checkboxHeader" scope="col">
+                        <div class="slds-th__action slds-th__action_form">
+                            <ui:inputCheckbox value="{!v.selectAll}" aura:id="selectAll" change="{!c.checkAll}"/>
+                        </div>
+                    </th>
+                    <th colspan="7" aria-sort="none" class="slds-is-sortable slds-is-resizable slds-text-title_caps otherTH" aria-label="Name" scope="col">
+                        <span class="slds-truncate font600" title="Object Name">Object Name</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <aura:iteration items="{!v.folders}" var="fld">
+                    <tr class="slds-hint-parent">
+                        <td class="slds-text-align_right" role="gridcell">
+                            <div class="slds-th__action slds-th__action_form">
+                                <ui:inputCheckbox value="{!fld.Checked}" change="{!c.checkObject}" name="{!fld.Name}"/>
+                            </div>
+                        </td>
+                        <td class="slds-text-align_right" role="gridcell">
+                            <aura:renderIf isTrue="{!fld.hasChilds}">
+                                <aura:renderIf isTrue="{!fld.Opened}">
+                                    <div class="slds-th__action slds-th__action_form">
+                                        <lightning:buttonIcon iconName="utility:chevrondown" value="{!fld.Name}" variant="bare" alternativeText="HideChilds" onclick="{!c.closeChild}"/>
+                                    </div>
+                                    <aura:set attribute="else">
+                                        <div class="slds-th__action slds-th__action_form">
+                                            <lightning:buttonIcon iconName="utility:chevronright" value="{!fld.Name}" variant="bare" alternativeText="ShowChilds" onclick="{!c.openChild}"/>
+                                        </div>
+                                    </aura:set>
+                                </aura:renderIf>
+                            </aura:renderIf>
+                        </td>
+                        <td colspan="6" role="gridcell" data-label="Object Name">
+                            <div class="slds-truncate cursorDefault" title="{!fld.Label}">{!fld.Label}</div>
+                        </td>
+                    </tr>
+                    
+                    <aura:renderIf isTrue="{!and(fld.hasChilds, fld.Opened)}">
+                        <aura:iteration items="{!fld.Childs}" var="cld">
+                            <tr class="slds-hint-parent backColor">
+                                <td class="slds-text-align_right" role="gridcell">
+                                    <div class="slds-th__action slds-th__action_form">
+                                        <ui:inputCheckbox value="{!cld.Checked}" change="{!c.checkObject}" name="{!cld.Name}"/>
+                                    </div>
+                                </td>
+                                <td/>
+                                <td class="slds-text-align_right" role="gridcell">
+                                    <aura:renderIf isTrue="{!cld.hasChilds}">
+                                        <aura:renderIf isTrue="{!cld.Opened}">
+                                            <div class="slds-th__action slds-th__action_form">
+                                                <lightning:buttonIcon iconName="utility:chevrondown" value="{!cld.Name}" variant="bare" alternativeText="HideChilds" onclick="{!c.closeChild}"/>
+                                            </div>
+                                            <aura:set attribute="else">
+                                                <div class="slds-th__action slds-th__action_form">
+                                                    <lightning:buttonIcon iconName="utility:chevronright" value="{!cld.Name}" variant="bare" alternativeText="ShowChilds" onclick="{!c.openChild}"/>
+                                                </div>
+                                            </aura:set>
+                                        </aura:renderIf>
+                                    </aura:renderIf>
+                                </td>
+                                <td colspan="5" role="gridcell" data-label="Object Name">
+                                    <div class="slds-truncate cursorDefault" title="{!cld.Label}">{!cld.Label}</div>
+                                </td>
+                            </tr>
+                            
+                            <aura:renderIf isTrue="{!and(cld.hasChilds, cld.Opened)}">
+                                <aura:iteration items="{!cld.Childs}" var="cld2">
+                                    <tr class="slds-hint-parent backColor">
+                                        <td class="slds-text-align_right" role="gridcell">
+                                            <div class="slds-th__action slds-th__action_form">
+                                                <ui:inputCheckbox value="{!cld2.Checked}" change="{!c.checkObject}" name="{!cld2.Name}"/>
+                                            </div>
+                                        </td>
+                                        <td/><td/>
+                                        <td class="slds-text-align_right" role="gridcell">
+                                            <aura:renderIf isTrue="{!cld2.hasChilds}">
+                                                <aura:renderIf isTrue="{!cld2.Opened}">
+                                                    <div class="slds-th__action slds-th__action_form">
+                                                        <lightning:buttonIcon iconName="utility:chevrondown" value="{!cld2.Name}" variant="bare" alternativeText="HideChilds" onclick="{!c.closeChild}"/>
+                                                    </div>
+                                                    <aura:set attribute="else">
+                                                        <div class="slds-th__action slds-th__action_form">
+                                                            <lightning:buttonIcon iconName="utility:chevronright" value="{!cld2.Name}" variant="bare" alternativeText="ShowChilds" onclick="{!c.openChild}"/>
+                                                        </div>
+                                                    </aura:set>
+                                                </aura:renderIf>
+                                            </aura:renderIf>
+                                        </td>
+                                        <td colspan="4" role="gridcell" data-label="Object Name">
+                                            <div class="slds-truncate cursorDefault" title="{!cld2.Label}">{!cld2.Label}</div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <aura:renderIf isTrue="{!and(cld2.hasChilds, cld2.Opened)}">
+                                        <aura:iteration items="{!cld2.Childs}" var="cld3">
+                                            <tr class="slds-hint-parent backColor">
+                                                <td class="slds-text-align_right" role="gridcell">
+                                                    <div class="slds-th__action slds-th__action_form">
+                                                        <ui:inputCheckbox value="{!cld3.Checked}" change="{!c.checkObject}" name="{!cld3.Name}"/>
+                                                    </div>
+                                                </td>
+                                                <td/><td/><td/>
+                                                <td class="slds-text-align_right" role="gridcell">
+                                                    <aura:renderIf isTrue="{!cld3.hasChilds}">
+                                                        <aura:renderIf isTrue="{!cld3.Opened}">
+                                                            <div class="slds-th__action slds-th__action_form">
+                                                                <lightning:buttonIcon iconName="utility:chevrondown" value="{!cld3.Name}" variant="bare" alternativeText="HideChilds" onclick="{!c.closeChild}"/>
+                                                            </div>
+                                                            <aura:set attribute="else">
+                                                                <div class="slds-th__action slds-th__action_form">
+                                                                    <lightning:buttonIcon iconName="utility:chevronright" value="{!cld3.Name}" variant="bare" alternativeText="ShowChilds" onclick="{!c.openChild}"/>
+                                                                </div>
+                                                            </aura:set>
+                                                        </aura:renderIf>
+                                                    </aura:renderIf>
+                                                </td>
+                                                <td colspan="3" role="gridcell" data-label="Object Name">
+                                                    <div class="slds-truncate cursorDefault" title="{!cld3.Label}">{!cld3.Label}</div>
+                                                </td>
+                                            </tr>
+                                            
+                                            <aura:renderIf isTrue="{!and(cld3.hasChilds, cld3.Opened)}">
+                                                <aura:iteration items="{!cld3.Childs}" var="cld4">
+                                                    <tr class="slds-hint-parent backColor">
+                                                        <td class="slds-text-align_right" role="gridcell">
+                                                            <div class="slds-th__action slds-th__action_form">
+                                                                <ui:inputCheckbox value="{!cld4.Checked}" change="{!c.checkObject}" name="{!cld4.Name}"/>
+                                                            </div>
+                                                        </td>
+                                                        <td/><td/><td/><td/>
+                                                        <td class="slds-text-align_right" role="gridcell">
+                                                            <aura:renderIf isTrue="{!cld4.hasChilds}">
+                                                                <aura:renderIf isTrue="{!cld4.Opened}">
+                                                                    <div class="slds-th__action slds-th__action_form">
+                                                                        <lightning:buttonIcon iconName="utility:chevrondown" value="{!cld4.Name}" variant="bare" alternativeText="HideChilds" onclick="{!c.closeChild}"/>
+                                                                    </div>
+                                                                    <aura:set attribute="else">
+                                                                        <div class="slds-th__action slds-th__action_form">
+                                                                            <lightning:buttonIcon iconName="utility:chevronright" value="{!cld4.Name}" variant="bare" alternativeText="ShowChilds" onclick="{!c.openChild}"/>
+                                                                        </div>
+                                                                    </aura:set>
+                                                                </aura:renderIf>
+                                                            </aura:renderIf>
+                                                        </td>
+                                                        <td colspan="2" role="gridcell" data-label="Object Name">
+                                                            <div class="slds-truncate cursorDefault" title="{!cld4.Label}">{!cld4.Label}</div>
+                                                        </td>
+                                                    </tr>
+                                                    
+                                                    <aura:renderIf isTrue="{!and(cld4.hasChilds, cld4.Opened)}">
+                                                        <aura:iteration items="{!cld4.Childs}" var="cld5">
+                                                            <tr class="slds-hint-parent backColor">
+                                                                <td class="slds-text-align_right" role="gridcell">
+                                                                    <div class="slds-th__action slds-th__action_form">
+                                                                        <ui:inputCheckbox value="{!cld5.Checked}" change="{!c.checkObject}" name="{!cld5.Name}"/>
+                                                                    </div>
+                                                                </td>
+                                                                <td/><td/><td/><td/><td/><td/>
+                                                                <td role="gridcell" data-label="Object Name">
+                                                                    <div class="slds-truncate cursorDefault" title="{!cld5.Label}">{!cld5.Label}</div>
+                                                                </td>
+                                                            </tr>
+                                                        </aura:iteration>
+                                                    </aura:renderIf>
+                                                </aura:iteration>
+                                            </aura:renderIf>
+                                        </aura:iteration>
+                                    </aura:renderIf>
+                                </aura:iteration>
+                            </aura:renderIf>
+                        </aura:iteration>
+                	</aura:renderIf>
+                </aura:iteration>
+            </tbody>
+        </table>
+        
+        <div id="modalContainer" class="modalHeight" style="display:none;">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Do you really want to create checked folders and remove unchecked folders?</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <p>Warning: You cannot work with deleted folders.</p>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <ui:button buttonTitle="Cancel" class="slds-button slds-button_neutral" label="Cancel" press="{!c.hideConfirmation}"/>
+                        <ui:button buttonTitle="Confirm" class="slds-button slds-button_brand" label="Confirm" press="{!c.updateFolders}"/>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </div>
+</aura:component>

@@ -1,0 +1,4 @@
+<aura:component implements="forceCommunity:availableForAllPageTypes,lightning:isUrlAddressable" access="global" >
+	<aura:handler name="init" value="{!this }" action="{!c.init}"/>
+    Wait a minute!
+</aura:component>
